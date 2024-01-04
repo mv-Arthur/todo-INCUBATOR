@@ -38,3 +38,19 @@ test("test for additing new task for todolist", () => {
 	expect(endState[todolistId1].length).toBe(3);
 	expect(endState[todolistId1][0].title).toBe("buy ak-47");
 });
+
+test("test for changing status of task", () => {
+	let todolistId1 = v1();
+	let todolistId2 = v1();
+
+	const startState = {
+		[todolistId1]: [
+			{ id: "23", title: "HTML&CSS", isDone: true },
+			{ id: v1(), title: "JS", isDone: true },
+		],
+		[todolistId2]: [
+			{ id: v1(), title: "Milk", isDone: true },
+			{ id: v1(), title: "React Book", isDone: true },
+		],
+	};
+});
