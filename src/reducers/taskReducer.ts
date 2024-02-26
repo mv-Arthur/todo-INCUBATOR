@@ -1,11 +1,32 @@
 import { v1 } from "uuid";
 import { TasksStateType } from "../App";
+//livesycle component
+// 3 стадии изменения ui в компоненте ререндер реконсилатион комит
 
-export const taskReducer = (state: TasksStateType, action: TaskReducerType): TasksStateType => {
+export let todolistId1 = v1();
+export let todolistId2 = v1();
+
+const initialState = {
+	[todolistId1]: [
+		{ id: v1(), title: "HTML&CSS", isDone: true },
+		{ id: v1(), title: "JS", isDone: true },
+	],
+	[todolistId2]: [
+		{ id: v1(), title: "Milk", isDone: true },
+		{ id: v1(), title: "React Book", isDone: true },
+	],
+};
+
+export const taskReducer = (
+	state: TasksStateType = initialState,
+	action: TaskReducerType
+): TasksStateType => {
 	switch (action.type) {
 		case "REMOVE-TASK": {
 			let todolistTasks = state[action.payload.todolistId];
-			state[action.payload.todolistId] = todolistTasks.filter((el) => el.id !== action.payload.id);
+			state[action.payload.todolistId] = todolistTasks.filter(
+				(el) => el.id !== action.payload.id
+			);
 			return { ...state };
 		}
 		case "ADD-TASK": {
@@ -15,20 +36,20 @@ export const taskReducer = (state: TasksStateType, action: TaskReducerType): Tas
 			return { ...state };
 		}
 		case "CHANGE-STATUS": {
-			const todolistTasks = state[action.payload.todolistId];
-			const task = todolistTasks.find((el) => el.id === action.payload.id);
-			if (task) {
-				task.isDone = action.payload.isDone;
-			}
-			return { ...state };
+			const stateCopy = { ...state };
+			const tasks = stateCopy[action.payload.todolistId];
+			stateCopy[action.payload.todolistId] = tasks.map((t) =>
+				t.id === action.payload.id ? { ...t, isDone: !t.isDone } : t
+			);
+			return stateCopy;
 		}
 		case "CHANGE-TASK-TITLE": {
-			const tododlistTasks = state[action.payload.todolistId];
-			const task = tododlistTasks.find((el) => el.id === action.payload.id);
-			if (task) {
-				task.title = action.payload.newTitle;
-			}
-			return { ...state };
+			const stateCopy = { ...state };
+			const tasks = stateCopy[action.payload.todolistId];
+			stateCopy[action.payload.todolistId] = tasks.map((t) =>
+				t.id === action.payload.id ? { ...t, title: action.payload.newTitle } : t
+			);
+			return stateCopy;
 		}
 
 		case "EMPTY-TASKS": {
@@ -50,7 +71,13 @@ export const taskReducer = (state: TasksStateType, action: TaskReducerType): Tas
 	}
 };
 
-type TaskReducerType = RemoveTaskACType | AddTaskACType | ChangeStatusACType | ChangeTaskTitleACType | AddEmptyTasksACType | ClearTasksForTodoACType;
+type TaskReducerType =
+	| RemoveTaskACType
+	| AddTaskACType
+	| ChangeStatusACType
+	| ChangeTaskTitleACType
+	| AddEmptyTasksACType
+	| ClearTasksForTodoACType;
 
 type RemoveTaskACType = ReturnType<typeof removeTaskAC>;
 
@@ -75,7 +102,7 @@ export const addTaskAC = (title: string, todlistId: string) => {
 		},
 	} as const;
 };
-
+// порядок свойств в обьекте
 type ChangeStatusACType = ReturnType<typeof changeStatusAC>;
 
 export const changeStatusAC = (id: string, isDone: boolean, todolistId: string) => {
